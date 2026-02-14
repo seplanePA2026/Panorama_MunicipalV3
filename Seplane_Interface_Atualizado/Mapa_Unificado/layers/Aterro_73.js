@@ -1,0 +1,1 @@
+var json_Aterro_73 = {"type":"FeatureCollection","name":"Aterro_73","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"}},"features":[{"type":"Feature","properties":{"fid":"1","LOCAL":"Aterro Sanit�rio","LATITUDE":-9.43235,"LONGITUDE":-38.32201,"Fotos":"../Imagem_PA/Aterro-Sanitario.jpg"},"geometry":{"type":"Point","coordinates":[-38.32201,-9.432352]}}]}

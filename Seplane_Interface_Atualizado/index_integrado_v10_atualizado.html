@@ -1,0 +1,2341 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GeoPainel • Paulo Afonso (Apresentação)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- SheetJS (XLSX) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    // Fallback (if jsdelivr is blocked)
+    window.addEventListener("error", function(e){
+      const s = (e && e.target && e.target.tagName === "SCRIPT") ? e.target : null;
+      if(!s) return;
+      if(String(s.src||"").includes("xlsx.full.min.js") && typeof XLSX === "undefined"){
+        const f = document.createElement("script");
+        f.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+        document.head.appendChild(f);
+      }
+    }, true);
+  </script>
+
+  <style>
+    :root{
+      --topbar-h: 62px;
+      --timeline-h: 58px;
+
+      --bg:#f2f6ff;
+      --card:#ffffff;
+      --ink:#0b1b3a;
+      --muted:#5c6b85;
+      --line:#d7e0f2;
+
+      --blue:#0b3a83;
+      --blue2:#0a2f6a;
+      --pill:#edf3ff;
+
+      --orange:#ff8a2a;
+      --orange2:#ffb168;
+
+      --shadow: 0 10px 30px rgba(11,58,131,.08);
+      --r:18px;
+    }
+
+    *{box-sizing:border-box}
+    html, body{height:100%; overflow:hidden;}
+    body{
+      margin:0;
+      font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    /* Topbar */
+    .topbar{
+      height:var(--topbar-h);
+      background: linear-gradient(90deg, var(--blue), var(--blue2));
+      color:#fff;
+      display:flex;
+      align-items:center;
+      padding:0 18px;
+      gap:14px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; min-width:260px;}
+    .brand .logo{
+      width:34px;height:34px;border-radius:10px;
+      background: rgba(255,255,255,.15);
+      display:grid;place-items:center;
+      font-weight:900;
+    }
+    .brand .ttl{line-height:1.05}
+    .brand .ttl b{display:block;font-size:14px}
+    .brand .ttl span{display:block;font-size:12px;opacity:.85}
+
+    .top-actions{margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;}
+    .hint{font-size:12px; opacity:.92; white-space:nowrap;}
+
+    .btn{
+      border:1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.12);
+      color:#fff;
+      padding:8px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{background:rgba(255,255,255,.18)}
+    .btn.secondary{
+      border:1px solid var(--line);
+      background:#fff;
+      color: var(--blue);
+    }
+    .btn.secondary:hover{background:#f7faff}
+
+    /* App layout */
+    .wrap{
+      height: calc(100vh - var(--topbar-h) - var(--timeline-h));
+      padding: 14px;
+      overflow:hidden;
+    }
+    .grid{
+      height:100%;
+      display:grid;
+      grid-template-columns: 74px 1fr 420px;
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0; /* important for inner scroll areas */
+    }
+    .card-h{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      gap:10px;
+      flex: 0 0 auto;
+    }
+    .card-h h3{
+      margin:0;
+      font-size:14px;
+      color: var(--blue2);
+      letter-spacing:.2px;
+    }
+    .pill{
+      background: var(--pill);
+      border:1px solid var(--line);
+      color: var(--blue2);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    /* Left panel */
+    .left{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+    .section-title{
+      margin: 0;
+      font-size:12px;
+      font-weight:900;
+      color: var(--muted);
+      letter-spacing:.6px;
+      text-transform:uppercase;
+    }
+
+    /* Tabs list in a scroll box (but should fit without page scroll) */
+    .tabScroll{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      background:#fbfdff;
+      flex:1;
+      min-height:0;
+      overflow:auto; /* internal scroll only if needed */
+    }
+    .tablist{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .tab{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 10px; /* smaller */
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      transition:.12s;
+    }
+    .tab:hover{background:#f7fbff}
+    .tab.active{
+      border-color: rgba(11,58,131,.35);
+      box-shadow: 0 0 0 3px rgba(11,58,131,.08);
+    }
+    .tab .name{font-weight:900; color: var(--blue2); font-size:13px; line-height:1.15;}
+    .tab .meta{display:none;} /* removed years/meta */
+
+    .uploadBox{
+      border:1px dashed var(--line);
+      background:#fbfdff;
+      border-radius:14px;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .uploadBox small{color:var(--muted); font-weight:650; line-height:1.35}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+
+    /* Center (Map + optional compare chart) */
+    .centerBody{
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .subtabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .subtab{
+      border:1px solid var(--line);
+      background:#fff;
+      color: var(--blue2);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .subtab.active{
+      background: var(--pill);
+      border-color: rgba(11,58,131,.35);
+      box-shadow: 0 0 0 3px rgba(11,58,131,.06);
+    }
+
+    .mapRegion{
+      position:relative;
+      flex: 1;
+      min-height:0;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+    }
+    .mapFrame{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+
+    .mapOverlay{
+      position:absolute;
+      left:12px;
+      bottom:12px;
+      right:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      pointer-events:none;
+    }
+    .miniCard{
+      pointer-events:auto;
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:8px 10px;
+      box-shadow: var(--shadow);
+      max-width: 70%;
+    }
+    .miniCard b{display:block;font-size:12px;color:var(--blue2)}
+    .miniCard span{display:block;font-size:12px;color:var(--muted);font-weight:750;margin-top:2px}
+    .miniRight{display:flex; gap:10px; pointer-events:auto; align-items:flex-end;}
+
+    /* Map compact mode */
+    .centerBody.compact .mapRegion{
+      flex: 0 0 240px; /* reduced bottom part */
+    }
+    .centerBody.compact .mapOverlay{bottom:8px}
+
+    .centerBody.compact .mapFrame{
+      width:56%;
+      height:100%;
+    }
+    .centerBody.compact .mapOverlay{
+      right: calc(44% + 12px);
+    }
+    .compareRegion{
+      flex: 1;
+      min-height:0;
+      padding:12px;
+      display:none;
+      overflow:hidden;
+      background:#fff;
+    }
+    .centerBody.compact .compareRegion{display:flex; flex-direction:column; gap:10px;}
+
+    /* Right panel: KPI + indicator list + chart */
+    .right{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
+      min-height:0;
+    }
+    .kpiRow{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      flex: 0 0 auto;
+    }
+    .kpi{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    .kpi .k{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.4px}
+    .kpi .v{font-size:18px;color:var(--blue2);font-weight:900;margin-top:4px}
+    .kpi .s{font-size:11px;color:var(--muted);font-weight:750;margin-top:2px}
+
+    .panelBox{
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      flex: 1;
+    }
+    .panelBox .panelHead{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      background:#f6f9ff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+    .panelBox .panelHead b{color:var(--blue2); font-size:12px;}
+    .panelBox .panelHead span{color:var(--muted); font-size:11px; font-weight:800;}
+    .panelBox .panelBody{
+      overflow:auto; /* scroll only inside indicator list */
+      min-height:0;
+      flex:1;
+    }
+
+    table{width:100%; border-collapse:collapse; font-size:12px;}
+    thead th{
+      text-align:left;
+      padding:10px 10px;
+      background:#f6f9ff;
+      border-bottom:1px solid var(--line);
+      color: var(--blue2);
+      font-weight:900;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    tbody td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      vertical-align:top;
+      color:#243554;
+      font-weight:750;
+      cursor:pointer;
+    }
+    tbody tr:hover{background:#fbfdff}
+    tbody tr.active{background: rgba(11,58,131,.06);}
+    .muted{color:var(--muted); font-weight:750}
+    .empty{
+      padding:12px;
+      color:var(--muted);
+      font-weight:750;
+      line-height:1.4;
+    }
+
+    /* Charts */
+    .chartCard{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .chartHead{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background:#fff;
+    }
+    .chartHead b{font-size:12px; color:var(--blue2);}
+    .chartHead .tag{
+      font-size:11px;
+      font-weight:900;
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: var(--pill);
+      color: var(--blue2);
+      white-space:nowrap;
+    }
+    .chartBody{
+      padding:10px;
+      height: 210px;
+    }
+    .bars{
+      height:100%;
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+    }
+    .barWrap{height:100%;
+      flex:1;
+      min-width: 34px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      gap:6px;
+    }
+    .bar{
+      width:100%;
+      border-radius:10px 10px 10px 10px;
+      background: rgba(11,58,131,.35);
+      border:1px solid rgba(11,58,131,.15);
+      height: 10%;
+      transition: height .22s ease;
+    }
+    .bar.blue{ background: rgba(11,58,131,.55); border-color: rgba(11,58,131,.22); }
+    .bar.orange{ background: rgba(255,138,42,.58); border-color: rgba(255,138,42,.25); }
+    .barLabel{
+      font-size:11px;
+      font-weight:900;
+      color: var(--blue2);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .barVal{
+      font-size:11px;
+      font-weight:800;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* Tooltip (gráficos) */
+    .chartTooltip{
+      position:fixed;
+      z-index:9999;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+      pointer-events:none;
+      opacity:0;
+      transform: translateY(-8px);
+      transition: opacity .08s ease, transform .08s ease;
+      max-width: 280px;
+    }
+    .chartTooltip.show{ opacity:1; transform: translateY(0); }
+    .chartTooltip .tTitle{ font-size:12px; font-weight:1000; color: var(--blue2); }
+    .chartTooltip .tVal{ margin-top:2px; font-size:12px; font-weight:850; color: var(--muted); }
+
+    /* Compare (5 cidades): mostrar só o nome embaixo, valor via tooltip */
+    .compareRegion .barWrap{ align-items:center; }
+    .compareRegion .barLabel{
+      text-align:center;
+      white-space:normal;
+      line-height:1.1;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      max-width: 92px;
+    }
+    .compareRegion .barVal{ display:none; }
+
+    /* Drawer: usar o título no topo (e esconder o subtítulo) */
+    #drawerTitle{ display:none; }
+
+    /* Pizza ao lado do mapa (modo compactado) */
+    .mapSidePanel{
+      position:absolute;
+      top:0;
+      right:0;
+      bottom:0;
+      width:44%;
+      padding:12px;
+      background:#fff;
+      border-left:1px solid var(--line);
+      display:none;
+      overflow:hidden;
+    }
+    .centerBody.compact .mapSidePanel{ display:flex; flex-direction:column; gap:10px; }
+
+    .mapSideHead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+    .mapSideHead b{ font-size:12px; color: var(--blue2); }
+    .mapSideHead span{ font-size:11px; color: var(--muted); font-weight:850; }
+
+    .pieWrap{ flex: 0 0 220px; display:flex; align-items:center; justify-content:center; }
+    #pieCanvas{ width:100%; height:220px; }
+    .pieLegend{ display:flex; flex-direction:column; gap:8px; overflow:auto; padding-right:4px; }
+    .pieItem{ display:flex; align-items:center; gap:8px; font-size:12px; font-weight:850; color:#243554; }
+    .pieSw{ width:10px; height:10px; border-radius:999px; border:1px solid rgba(0,0,0,.10); flex:0 0 auto; }
+    .pieEmpty{ color: var(--muted); font-weight:800; font-size:12px; line-height:1.35; }
+
+    /* Map tools: no modo compactado, manter o botão dentro do mapa (não em cima da pizza) */
+    .centerBody.compact .mapTools{ right: calc(44% + 80px); }
+
+
+    /* Left icon bar + drawer */
+    .leftShell{
+      position:relative;
+      height:100%;
+    }
+    .sideNav{
+      height:100%;
+      width:74px;
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.15);
+      background: linear-gradient(180deg, var(--blue), var(--blue2));
+      box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:10px 6px;
+      gap:10px;
+      overflow:hidden;
+    }
+    .navBtn{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-size:20px;
+      cursor:pointer;
+      user-select:none;
+      opacity:.86;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .navBtn:hover{ opacity:1; background: rgba(255,255,255,.12); }
+    .navBtn.active{ opacity:1; background: rgba(255,255,255,.16); box-shadow: 0 0 0 3px rgba(255,255,255,.08); }
+    .navBtn svg{width:22px;height:22px;display:block;}
+    .navBtn svg *{stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+    .navSpacer{flex:1}
+    .navMini{
+      font-size:11px;
+      font-weight:900;
+      opacity:.9;
+      color:#e8f1ff;
+      text-align:center;
+      line-height:1.1;
+      padding:6px 4px 0;
+    }
+
+    .drawer{
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:74px;
+      width:300px;
+      z-index:80;
+      display:none;
+    }
+    .drawer.open{ display:flex; }
+    .drawer .drawerInner{
+      width:100%;
+      height:100%;
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .drawerTop{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:#fff;
+    }
+    .drawerTop h3{
+      margin:0;
+      font-size:14px;
+      color: var(--blue2);
+      letter-spacing:.2px;
+    }
+    .closeX{
+      width:34px;height:34px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      display:grid;place-items:center;
+      font-weight:1000;
+      color: var(--blue2);
+    }
+    .closeX:hover{ background:#f6f9ff; }
+
+    .drawerBody{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+      flex:1;
+    }
+
+    /* Map tools overlay (expand/compact icons) */
+    .mapTools{
+      position:absolute;
+      top:10px;
+      right:80px;
+      z-index:20;
+      display:flex;
+      gap:8px;
+      pointer-events:auto;
+    }
+    .toolBtn{
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      color: var(--blue2);
+    }
+    .toolBtn:hover{ background:#fff; }
+
+    /* Legend */
+    .legend{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-size:11px;
+      color: var(--muted);
+      font-weight:850;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      display:inline-block;
+      border:1px solid rgba(0,0,0,.08);
+      margin-right:6px;
+    }
+    .dot.blue{ background: rgba(11,58,131,.55); }
+    .dot.orange{ background: rgba(255,138,42,.65); }
+
+    /* Make indicators area bigger (remove KPI card) */
+    .right{ padding:12px; display:flex; flex-direction:column; gap:10px; flex:1; min-height:0; }
+    .panelBox{ flex: 1 1 auto; }
+    .chartBody{ height: 190px; }
+
+    /* Timeline */
+    .timeline{
+      height: var(--timeline-h);
+      position:fixed;
+      left:0; right:0; bottom:0;
+      background:rgba(255,255,255,.96);
+      border-top:1px solid var(--line);
+      backdrop-filter: blur(10px);
+      z-index:60;
+      overflow:hidden;
+    }
+    .timeline .inner{
+      height:100%;
+      max-width: 1600px;
+      margin:0 auto;
+      padding: 10px 14px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .timeline .label{
+      font-size:12px;
+      font-weight:900;
+      color: var(--blue2);
+      white-space:nowrap;
+    }
+    .yearStrip{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding-bottom:2px;
+      flex:1;
+    }
+    .year{
+      border:1px solid var(--line);
+      background:#fff;
+      color: var(--blue2);
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+      user-select:none;
+    }
+    .year.active{
+      background: var(--pill);
+      border-color: rgba(11,58,131,.35);
+      box-shadow: 0 0 0 3px rgba(11,58,131,.06);
+    }
+    .yearStrip::-webkit-scrollbar{height:8px}
+    .yearStrip::-webkit-scrollbar-thumb{background:#cfe0ff;border-radius:999px}
+
+    @media (max-width: 1320px){
+      .grid{grid-template-columns: 290px 1fr 380px;}
+    }
+    @media (max-width: 1120px){
+      .grid{grid-template-columns: 1fr; }
+      .wrap{height:auto}
+      html, body{overflow:auto;}
+      .timeline{position:sticky}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">G</div>
+      <div class="ttl">
+        <b>GeoPainel</b>
+        <span>Paulo Afonso • Apresentação</span>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <span class="hint" id="statusHint">Carregue a planilha principal.</span>
+      <button class="btn" id="btnLoadMain">📄 Carregar planilha</button>
+<input type="file" id="fileMain" accept=".xlsx,.xls" hidden />
+</div>
+  </div>
+
+  <div class="wrap">
+    <div class="grid">
+      <!-- LEFT -->
+      <div class="leftShell">
+        <div class="sideNav" id="sideNav">
+          <div class="navBtn active" data-group="geo" title="Território & IDHM"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/></svg></div>
+          <div class="navBtn" data-group="eco" title="Economia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h5"/><rect x="5" y="4" width="14" height="17" rx="2"/></svg></div>
+          <div class="navBtn" data-group="pop" title="População"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M6 20a6 6 0 0 1 12 0"/><path d="M19 20a4.5 4.5 0 0 0-4-4.4"/><path d="M18 7.5a3 3 0 1 1-3 3"/></svg></div>
+          <div class="navBtn" data-group="edu" title="Educação"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></div>
+          <div class="navSpacer"></div>
+          <div class="navMini" id="baseBadge">Base<br>—</div>
+        </div>
+
+        <div class="drawer" id="drawer">
+          <div class="drawerInner">
+            <div class="drawerTop">
+              <h3 id="drawerTopTitle">—</h3>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <span class="pill" id="leftCount">0 abas</span>
+                <button class="closeX" id="btnCloseDrawer" title="Fechar">✕</button>
+              </div>
+            </div>
+            <div class="drawerBody">
+              <div class="section-title" id="drawerTitle">Categorias</div>
+              <div class="tabScroll" style="flex:1;">
+                <div class="tablist" id="mainTabs">
+                  <div class="empty">Nenhuma planilha carregada.</div>
+                </div>
+              </div>
+              <div class="muted" style="font-size:11px; font-weight:800;">
+                Clique em um ícone à esquerda para abrir/filtrar as categorias.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER -->
+
+      <div class="card">
+        <div class="card-h">
+          <h3>Mapa</h3>
+
+          <div class="subtabs" id="subTabs">
+            <span class="pill">Selecione uma aba</span>
+          </div>
+</div>
+
+        <div class="centerBody" id="centerBody">
+          <div class="mapRegion">
+            <div class="mapTools">
+              <button class="toolBtn" id="btnToggleMap" title="Compactar mapa" aria-label="Compactar mapa"></button>
+            </div>
+            <iframe class="mapFrame" id="mapFrame" src="./Mapa_populacional/index.html"></iframe>
+
+            <div class="mapSidePanel" id="mapSidePanel">
+              <div class="mapSideHead">
+                <b id="pieTitle">Comparativo</b>
+                <span id="pieSub">—</span>
+              </div>
+              <div class="pieWrap">
+                <canvas id="pieCanvas" aria-label="Gráfico em pizza"></canvas>
+              </div>
+              <div class="pieLegend" id="pieLegend"></div>
+              <div class="pieEmpty" id="pieEmpty" style="display:none">Selecione um indicador e um ano para ver o comparativo.</div>
+            </div>
+
+            <div class="mapOverlay">
+              <div class="miniCard" id="mapInfo">
+                <b>Seleção no mapa</b>
+                <span>Clique em um setor/feição para ver detalhes.</span>
+              </div>
+
+              <div class="miniRight">
+                <button class="btn secondary" id="btnClearMap" style="pointer-events:auto;">Limpar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ORANGE COMPARATIVE CHART (appears when map compacted) -->
+          <div class="compareRegion">
+            <div class="chartCard" style="width:100%; flex:1; min-height:0;">
+              <div class="chartHead">
+                <b>Comparativo • 5 cidades (BA)</b>
+                <span class="tag" id="compareTag">🟠 Comparativo na mesma planilha</span>
+              </div>
+              <div style="padding:0 10px 10px;">
+                <div class="legend">
+                  <span><span class="dot blue"></span>Paulo Afonso</span>
+                  <span><span class="dot orange"></span>Outras cidades</span>
+                </div>
+              </div>
+              <div class="chartBody" id="compareChart">
+                <div class="empty">
+                  Adicione linhas de <b>outros municípios</b> na mesma aba (ex.: IDHM) para habilitar o comparativo.
+                </div>
+              </div>
+            </div>
+            <div class="muted" style="font-size:11px; font-weight:800;">
+              Dica: o comparativo usa o mesmo indicador/subaba e ano selecionado.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="card">
+        <div class="card-h">
+          <h3 id="rightTitle">Dados</h3>
+          <span class="pill" id="rightMeta">—</span>
+        </div>
+
+        <div class="right">
+
+          <!-- Indicator list (scroll box) -->
+          <div class="panelBox">
+            <div class="panelHead">
+              <b>Indicadores</b>
+              <span id="indicatorHint">Clique em um indicador para atualizar o gráfico</span>
+            </div>
+            <div class="panelBody" id="dataPanel">
+              <div class="empty">Carregue a planilha e selecione uma categoria.</div>
+            </div>
+          </div>
+
+          <!-- Trend chart -->
+          <div class="chartCard">
+            <div class="chartHead">
+              <b id="trendTitle">Comparação por ano</b>
+              <span class="tag" id="trendTag">—</span>
+            </div>
+              <div style="padding:0 10px 10px;">
+                <div class="legend">
+                  <span><span class="dot blue"></span>Paulo Afonso</span>
+                </div>
+              </div>
+            <div class="chartBody" id="trendChart">
+              <div class="empty">Selecione uma categoria e um indicador.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline">
+    <div class="inner">
+      <div class="label">Timeline</div>
+      <div class="yearStrip" id="yearsStrip">
+        <span class="muted">—</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ==========================================================
+   STATE
+========================================================== */
+const state = {
+  wb: null,
+  model: null,
+
+  // base municipality (prefer Paulo Afonso if present)
+  baseName: null,
+  baseNameLower: "paulo afonso",
+  baseCode: null,
+
+  selectedSheet: null,
+  selectedSubtab: "Geral",
+  selectedYear: null,
+
+  // when multiple measures exist (e.g., Território: População / Densidade / Área)
+  selectedMeasure: null,
+
+  // row selection in the indicators table
+  selectedRowKey: null,
+
+  // left navigation
+  navGroup: "geo",
+  drawerOpen: false,
+
+  // map
+  mapSelection: null,
+  mapCompact: false,
+
+  // last compare series (for pie/chart sync)
+  lastCompare: null
+};
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+const $ = (id) => document.getElementById(id);
+const norm = (s) => String(s ?? "").trim();
+const lower = (s) => norm(s).toLowerCase();
+
+function uniq(arr){
+  return Array.from(new Set(arr.filter(v => v !== null && v !== undefined && String(v).trim() !== "")));
+}
+
+function escapeHtml(v){
+  const s = String(v ?? "");
+  return s
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function isYearLike(x){
+  const t = String(x ?? "").trim().replace(/\.0$/, "");
+  return /^(19|20)\d{2}$/.test(t);
+}
+function sortYears(arr){
+  return uniq(arr.map(v => String(v).trim().replace(/\.0$/, "")))
+    .filter(isYearLike)
+    .sort((a,b)=>Number(a)-Number(b));
+}
+
+/** robust number parsing:
+ *  - supports 1544.37  | 1.544,37 | 1544,37 | 1544
+ */
+function toNumber(v){
+  if(v === null || v === undefined) return null;
+  if(typeof v === "number") return Number.isFinite(v) ? v : null;
+
+  let s = String(v).trim();
+  if(!s) return null;
+
+  s = s.replace(/\s+/g,"");
+  const hasDot = s.includes(".");
+  const hasComma = s.includes(",");
+
+  if(hasDot && hasComma){
+    // last separator decides decimal mark
+    if(s.lastIndexOf(",") > s.lastIndexOf(".")){
+      // 1.234,56 => 1234.56
+      s = s.replace(/\./g,"").replace(",",".");
+    }else{
+      // 1,234.56 => 1234.56
+      s = s.replace(/,/g,"");
+    }
+  }else if(hasComma && !hasDot){
+    // 1234,56 => 1234.56
+    s = s.replace(",",".");
+  }else{
+    // keep dot as decimal
+    // (do nothing)
+  }
+
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function fmtValue(v){
+  if(v === null || v === undefined || String(v).trim() === "") return "—";
+  if(typeof v === "number" && Number.isFinite(v)){
+    return v.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+  }
+  const n = toNumber(v);
+  if(n !== null) return n.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+  return String(v);
+}
+
+const NAV_GROUPS = {
+  geo: ["Território","IDHM"],
+  eco: ["PIB_Setor_Econômico","Indice_GINI","Famílias_Bolsa Família"],
+  pop: ["Evolução_População","População_Genero","Situação_População"],
+  edu: ["IDEB"]
+};
+
+function openDrawer(group){
+  if(group) state.navGroup = group;
+  state.drawerOpen = true;
+  $("drawer")?.classList.add("open");
+  renderMainTabs();
+}
+function closeDrawer(){
+  state.drawerOpen = false;
+  $("drawer")?.classList.remove("open");
+}
+
+function setStatus(text){
+  $("statusHint").textContent = text;
+}
+
+/* ==========================================================
+   XLSX -> ROWS
+========================================================== */
+function sheetToRows(ws){
+  const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+  if(!aoa || !aoa.length) return { columns: [], rows: [] };
+
+  let headerIdx = aoa.findIndex(r => (r || []).some(v => String(v).trim() !== ""));
+  if(headerIdx < 0) headerIdx = 0;
+
+  const rawHeader = (aoa[headerIdx] || []).map(h => norm(h));
+  const columns = rawHeader.map((h,i) => h || `UNNAMED_${i+1}`);
+
+  const rows = [];
+  for(let i = headerIdx + 1; i < aoa.length; i++){
+    const rowArr = aoa[i] || [];
+    const hasAny = rowArr.some(v => String(v).trim() !== "");
+    if(!hasAny) continue;
+
+    const obj = {};
+    for(let j=0; j<columns.length; j++){
+      obj[columns[j]] = (j < rowArr.length) ? rowArr[j] : "";
+    }
+    rows.push(obj);
+  }
+  return { columns, rows };
+}
+
+/* ==========================================================
+   FIELD GUESSERS (robust)
+========================================================== */
+function findFirstColumn(columns, tests){
+  for(const c of columns){
+    const lc = lower(c);
+    for(const t of tests){
+      if(typeof t === "string"){
+        if(lc === lower(t)) return c;
+      }else if(t instanceof RegExp){
+        if(t.test(lc)) return c;
+      }
+    }
+  }
+  return null;
+}
+
+function guessYearField(columns){
+  // exact Ano / Year
+  let c = findFirstColumn(columns, ["Ano", "Year"]);
+  if(c) return c;
+  // contains "ano" but avoid "mês"
+  c = columns.find(col => {
+    const lc = lower(col);
+    return lc.includes("ano") && !lc.includes("mês") && !lc.includes("mes");
+  });
+  return c || null;
+}
+
+function guessMunNameField(columns){
+  return findFirstColumn(columns, [
+    /munic/i, /municip/i, /municí/i, /cidade/i
+  ]);
+}
+
+function guessMunCodeField(columns){
+  return findFirstColumn(columns, [
+    /code_mun/i, /cod_mun/i, /cod\.?mun/i, /c[oó]digo.*mun/i, /ibge/i, /codigo_ibge/i
+  ]);
+}
+
+function guessGroupField(columns){
+  return findFirstColumn(columns, [
+    "Tipo","Setor","Sexo","Situação","Situacao","Education Level","Mês","Mes",
+    "Faixa Etária","Faixa_Etária","Faixa Etaria","Faixa_Etaria",
+    "Nível","Nivel","Categoria","Grupo","Seção","Secao"
+  ]);
+}
+
+function isMetaColumnName(col){
+  const lc = lower(col);
+  // allow IDEB even though it starts with "id"
+  if(lc.startsWith("ideb")) return false;
+
+  if(lc.includes("fonte")) return true;
+  if(lc === "uf" || lc.includes(" uf")) return true;
+
+  // municipality name / code handled separately
+  if(lc.includes("municip") || lc.includes("municí") || lc.includes("cidade")) return true;
+  if(lc.includes("code") || lc.includes("cod_") || lc.includes("código") || lc.includes("codigo") || lc.includes("ibge")) return true;
+
+  // id-like (Tipo ID, Ano ID, etc.)
+  if(lc === "id" || lc.endsWith(" id") || lc.endsWith("_id") || lc.includes(" id ") || lc.includes("id_")) return true;
+
+  // unnamed helper cols
+  if(lc.startsWith("unnamed")) return true;
+
+  return false;
+}
+
+function detectYearColumns(columns){
+  return sortYears(columns.filter(isYearLike));
+}
+
+function detectYears(sh){
+  // LONG
+  if(sh.yearField){
+    return sortYears(sh.rows.map(r => r[sh.yearField]));
+  }
+  // WIDE
+  return detectYearColumns(sh.columns);
+}
+
+function detectNumericMeasureColumns(sh){
+  const exclude = new Set([
+    sh.yearField,
+    sh.groupField,
+    sh.munNameField,
+    sh.munCodeField
+  ].filter(Boolean));
+
+  const candidates = sh.columns.filter(c => !exclude.has(c) && !isMetaColumnName(c) && !isYearLike(c));
+  const measures = [];
+
+  for(const col of candidates){
+    const sample = [];
+    for(let i=0; i<sh.rows.length && sample.length < 50; i++){
+      const v = sh.rows[i][col];
+      if(String(v).trim() === "") continue;
+      sample.push(v);
+    }
+    if(!sample.length) continue;
+
+    const numCount = sample.map(toNumber).filter(v => v !== null).length;
+    if(numCount / sample.length >= 0.6){
+      measures.push(col);
+    }
+  }
+
+  // fallback: if none detected, keep non-meta columns (excluding year/group/mun)
+  if(!measures.length){
+    return candidates;
+  }
+  return measures;
+}
+
+function detectIndicatorFieldForWide(sh){
+  // pick first text-ish column that isn't meta/mun/year
+  const exclude = new Set([sh.munNameField, sh.munCodeField].filter(Boolean));
+  const yearCols = new Set(sh.years || []);
+  for(const col of sh.columns){
+    if(exclude.has(col)) continue;
+    if(isMetaColumnName(col)) continue;
+    if(yearCols.has(col)) continue;
+    if(col === sh.groupField) continue;
+    // text-ish?
+    const sample = sh.rows.slice(0,30).map(r => r[col]).filter(v => String(v).trim() !== "");
+    if(!sample.length) continue;
+    const numCount = sample.map(toNumber).filter(v => v !== null).length;
+    if(numCount / sample.length < 0.4) return col;
+  }
+  return null;
+}
+
+/* ==========================================================
+   MODEL
+========================================================== */
+function buildModelFromWorkbook(wb){
+  const sheets = wb.SheetNames.map(name => {
+    const ws = wb.Sheets[name];
+    const parsed = sheetToRows(ws);
+    const sh = {
+      name,
+      rows: parsed.rows,
+      columns: parsed.columns,
+      yearField: null,
+      groupField: null,
+      munNameField: null,
+      munCodeField: null,
+      years: [],
+      measures: [],
+      wideIndicatorField: null
+    };
+
+    sh.yearField = guessYearField(sh.columns);
+    sh.groupField = guessGroupField(sh.columns);
+    sh.munNameField = guessMunNameField(sh.columns) || sh.columns.find(c => lower(c).includes("municip"));
+    sh.munCodeField = guessMunCodeField(sh.columns);
+
+    sh.years = detectYears(sh);
+
+    // measures differ if WIDE
+    if(sh.yearField){
+      sh.measures = detectNumericMeasureColumns(sh);
+    }else{
+      // wide: year columns are measures
+      sh.measures = sh.years.slice();
+      sh.wideIndicatorField = detectIndicatorFieldForWide(sh);
+    }
+
+    // precompute if there are multiple municipalities
+    const muniCol = sh.munNameField;
+    const codeCol = sh.munCodeField;
+    const muniSet = new Set();
+    if(muniCol){
+      for(const r of sh.rows){
+        const nm = lower(r[muniCol]);
+        if(nm) muniSet.add(nm);
+        if(muniSet.size > 2) break;
+      }
+    }
+    const codeSet = new Set();
+    if(codeCol){
+      for(const r of sh.rows){
+        const cd = String(r[codeCol] ?? "").trim();
+        if(cd) codeSet.add(cd);
+        if(codeSet.size > 2) break;
+      }
+    }
+    sh.hasMultiMunicipios = (muniSet.size > 1) || (codeSet.size > 1);
+
+    return sh;
+  });
+
+  return { sheets };
+}
+
+function detectBaseMunicipality(model){
+  // Prefer Paulo Afonso if present anywhere
+  for(const sh of model.sheets){
+    const nameCol = sh.munNameField;
+    const codeCol = sh.munCodeField;
+    if(!nameCol) continue;
+    for(const r of sh.rows.slice(0,300)){
+      const nm = lower(r[nameCol]);
+      if(nm.includes("paulo afonso")){
+        const code = codeCol ? String(r[codeCol] ?? "").trim() : null;
+        return { name: norm(r[nameCol]) || "Paulo Afonso", code: code || null };
+      }
+    }
+  }
+  // Otherwise first municipality found
+  for(const sh of model.sheets){
+    const nameCol = sh.munNameField;
+    const codeCol = sh.munCodeField;
+    if(!nameCol) continue;
+    for(const r of sh.rows){
+      const nm = norm(r[nameCol]);
+      if(nm){
+        const code = codeCol ? String(r[codeCol] ?? "").trim() : null;
+        return { name: nm, code: code || null };
+      }
+    }
+  }
+  return { name: "Paulo Afonso", code: "2924009" };
+}
+
+function isBaseRow(sh, r){
+  const codeCol = sh.munCodeField;
+  const nameCol = sh.munNameField;
+
+  // prefer code comparison if available
+  if(codeCol && state.baseCode){
+    const rc = String(r[codeCol] ?? "").trim();
+    if(rc && rc === String(state.baseCode).trim()) return true;
+  }
+  if(nameCol && state.baseNameLower){
+    const rn = lower(r[nameCol]);
+    if(rn && rn.includes(state.baseNameLower)) return true;
+  }
+  // if no municipality columns, treat as base
+  if(!codeCol && !nameCol) return true;
+
+  return false;
+}
+
+function filterBaseRows(sh, rows){
+  // if there is no municipality data, keep as-is
+  if(!sh.munNameField && !sh.munCodeField) return rows;
+
+  // try code match first (stable)
+  if(sh.munCodeField && state.baseCode){
+    const has = rows.some(r => String(r[sh.munCodeField] ?? "").trim() === String(state.baseCode).trim());
+    if(has) return rows.filter(r => String(r[sh.munCodeField] ?? "").trim() === String(state.baseCode).trim());
+  }
+  // fallback to name match
+  if(sh.munNameField && state.baseNameLower){
+    const has = rows.some(r => lower(r[sh.munNameField]).includes(state.baseNameLower));
+    if(has) return rows.filter(r => lower(r[sh.munNameField]).includes(state.baseNameLower));
+  }
+  // fallback to first municipality group
+  if(sh.munNameField){
+    const first = lower(rows.find(r => norm(r[sh.munNameField]))?.[sh.munNameField] || "");
+    if(first) return rows.filter(r => lower(r[sh.munNameField]) === first);
+  }
+  return rows;
+}
+
+/* ==========================================================
+   UI: TABS / SUBTABS
+========================================================== */
+
+function renderMainTabs(){
+  const box = $("mainTabs");
+  box.innerHTML = "";
+
+  const sheets = state.model?.sheets || [];
+  const groupList = NAV_GROUPS[state.navGroup] || null;
+
+  const filtered = groupList
+    ? sheets.filter(s => groupList.includes(s.name))
+    : sheets.slice();
+
+  const mapTitle = { geo:"Georreferência", eco:"Economia", pop:"População", edu:"Educação" };
+
+  // Drawer title: show the selected category name in the top bar (remove 'Abas da planilha')
+  const drawerTopTitle = $("drawerTopTitle");
+  if(drawerTopTitle){
+    drawerTopTitle.textContent = mapTitle[state.navGroup] || "Categorias";
+  }
+
+  // Keep the old subtitle empty (it is hidden by CSS)
+  const drawerTitle = $("drawerTitle");
+  if(drawerTitle){
+    drawerTitle.textContent = "";
+  }
+
+  const baseBadge = $("baseBadge");
+  if(baseBadge){
+    const nm = state.baseName ? state.baseName.split(" ").slice(0,2).join(" ") : "—";
+    baseBadge.innerHTML = `Base<br>${escapeHtml(nm)}`;
+  }
+
+  $("leftCount").textContent = `${filtered.length} abas`;
+
+  if(!filtered.length){
+    box.innerHTML = `<div class="empty">Nenhuma aba neste grupo (ou planilha não carregada).</div>`;
+    return;
+  }
+
+  for(const sh of filtered){
+    const btn = document.createElement("div");
+    btn.className = "tab" + (state.selectedSheet?.name === sh.name ? " active" : "");
+    btn.onclick = () => { selectSheet(sh.name); };
+    btn.innerHTML = `<div class="name">${escapeHtml(sh.name)}</div>`;
+    box.appendChild(btn);
+  }
+}
+
+
+function getGroups(sh){
+  if(!sh?.groupField) return ["Geral"];
+  const gf = sh.groupField;
+
+  // Use base municipality rows when possible, so subtabs match what Paulo Afonso actually has.
+  const baseRows = filterBaseRows(sh, sh.rows);
+  const src = (baseRows && baseRows.length) ? baseRows : sh.rows;
+
+  const groups = uniq(src.map(r => norm(r[gf]))).filter(g => g !== "");
+  return ["Geral", ...groups];
+}
+
+function renderSubtabs(){
+  const el = $("subTabs");
+  el.innerHTML = "";
+
+  if(!state.selectedSheet){
+    el.innerHTML = `<span class="pill">Selecione uma aba</span>`;
+    return;
+  }
+
+  const sh = state.selectedSheet;
+  const groups = getGroups(sh);
+
+  if(!state.selectedSubtab || !groups.includes(state.selectedSubtab)){
+    // default: first real group if exists, else Geral
+    state.selectedSubtab = (groups.length > 1) ? groups[1] : "Geral";
+  }
+
+  groups.forEach(g => {
+    const b = document.createElement("button");
+    b.className = "subtab" + (state.selectedSubtab === g ? " active" : "");
+    b.textContent = g;
+    b.onclick = () => {
+      state.selectedSubtab = g;
+      state.selectedRowKey = null;
+      // reset year to max available for this filter
+      state.selectedYear = null;
+      renderAll();
+    };
+    el.appendChild(b);
+  });
+}
+
+/* ==========================================================
+   TIMELINE (years available for current selection)
+========================================================== */
+function yearsForCurrentSelection(){
+  const sh = state.selectedSheet;
+  if(!sh) return [];
+
+  // WIDE
+  if(!sh.yearField){
+    return sh.years || [];
+  }
+
+  const yf = sh.yearField;
+  let rows = sh.rows.slice();
+  rows = filterBaseRows(sh, rows);
+
+  if(sh.groupField && state.selectedSubtab && state.selectedSubtab !== "Geral"){
+    rows = rows.filter(r => norm(r[sh.groupField]) === norm(state.selectedSubtab));
+  }
+  return sortYears(rows.map(r => r[yf]));
+}
+
+function renderTimeline(){
+  const strip = $("yearsStrip");
+  strip.innerHTML = "";
+
+  if(!state.selectedSheet){
+    strip.innerHTML = `<span class="muted">—</span>`;return;
+  }
+
+  const years = yearsForCurrentSelection();
+  if(!years.length){
+    strip.innerHTML = `<span class="muted">Sem anos detectáveis.</span>`;return;
+  }
+
+  if(!state.selectedYear || !years.includes(String(state.selectedYear))){
+    state.selectedYear = years[years.length - 1];
+  }years.forEach(y => {
+    const b = document.createElement("div");
+    b.className = "year" + (String(state.selectedYear) === String(y) ? " active" : "");
+    b.textContent = y;
+    b.onclick = () => {
+      state.selectedYear = y;
+      state.selectedRowKey = null;
+      renderAll();
+    };
+    strip.appendChild(b);
+  });
+}
+
+/* ==========================================================
+   INDICATORS TABLE
+========================================================== */
+function aggregateSum(rows, field){
+  const nums = rows.map(r => toNumber(r[field])).filter(v => v !== null);
+  if(nums.length) return nums.reduce((a,b)=>a+b,0);
+  return null;
+}
+
+function buildIndicatorRowsForSelected(){
+  const sh = state.selectedSheet;
+  const y = state.selectedYear;
+  if(!sh || !y) return [];
+
+  // WIDE
+  if(!sh.yearField){
+    const yearCol = (sh.measures || []).find(c => String(c).trim() === String(y).trim()) || String(y);
+    const rows = filterBaseRows(sh, sh.rows);
+    const indField = sh.wideIndicatorField;
+    const out = [];
+    for(let i=0; i<rows.length; i++){
+      const r = rows[i];
+      const label = indField ? norm(r[indField]) : `Linha ${i+1}`;
+      const val = r[yearCol];
+      if(String(val).trim() === "") continue;
+      const key = `w::${i}`;
+      out.push({ key, indicador: label || `Linha ${i+1}`, valor: val, active: state.selectedRowKey === key });
+    }
+    if(!state.selectedRowKey && out.length) state.selectedRowKey = out[0].key;
+    return out;
+  }
+
+  // LONG
+  const yf = sh.yearField;
+  const gf = sh.groupField;
+  const measures = sh.measures || [];
+  if(!measures.length) return [];
+
+  let rows = sh.rows.filter(r => String(r[yf]).trim() === String(y).trim());
+  rows = filterBaseRows(sh, rows);
+
+  if(!rows.length) return [];
+
+  const out = [];
+
+  if(!gf){
+    // single row per year: show measures
+    const r0 = rows[0];
+    for(const m of measures){
+      const val = r0[m];
+      if(String(val).trim() === "") continue;
+      const key = `m::${m}`;
+      out.push({ key, indicador: m, valor: val, active: (state.selectedRowKey ? state.selectedRowKey===key : m===state.selectedMeasure) });
+    }
+    if(!state.selectedRowKey && out.length){
+      state.selectedRowKey = out[0].key;
+      state.selectedMeasure = measures[0];
+    }
+    return out;
+  }
+
+  // group exists
+  if(state.selectedSubtab === "Geral"){
+    // show all groups as indicators for the selected (or first) measure
+    let measure = state.selectedMeasure;
+    if(!measure || !measures.includes(measure)) measure = measures[0];
+    state.selectedMeasure = measure;
+
+    const groups = uniq(rows.map(r => norm(r[gf]))).filter(Boolean);
+    for(const g of groups){
+      const gr = rows.filter(r => norm(r[gf]) === g);
+      const valNum = aggregateSum(gr, measure);
+      const val = valNum !== null ? valNum : (gr[0]?.[measure] ?? "");
+      const key = `g::${g}::${measure}`;
+      out.push({ key, indicador: g, valor: (val === "" ? "—" : val), active: state.selectedRowKey === key });
+    }
+    out.sort((a,b)=> (toNumber(b.valor) ?? -1) - (toNumber(a.valor) ?? -1));
+    if(!state.selectedRowKey && out.length) state.selectedRowKey = out[0].key;
+    return out;
+  }
+
+  // specific group: show measures (or single value)
+  rows = rows.filter(r => norm(r[gf]) === norm(state.selectedSubtab));
+  if(!rows.length) return [];
+
+  if(measures.length === 1){
+    const m = measures[0];
+    const valNum = aggregateSum(rows, m);
+    const val = valNum !== null ? valNum : (rows[0][m] ?? "—");
+    out.push({ key:`g1::${state.selectedSubtab}::${m}`, indicador: state.selectedSubtab, valor: (val === "" ? "—" : val), active:true });
+    state.selectedMeasure = m;
+    state.selectedRowKey = out[0].key;
+    return out;
+  }
+
+  // multiple measures: show each measure row for that group (choose first row)
+  const r0 = rows[0];
+  let measure = state.selectedMeasure;
+  if(!measure || !measures.includes(measure)) measure = measures[0];
+  state.selectedMeasure = measure;
+
+  for(const m of measures){
+    const val = r0[m];
+    if(String(val).trim() === "") continue;
+    const key = `gm::${state.selectedSubtab}::${m}`;
+    out.push({ key, indicador: m, valor: val, active: m === measure });
+  }
+  if(!state.selectedRowKey && out.length) state.selectedRowKey = out.find(r => r.active)?.key || out[0].key;
+  return out;
+}
+
+
+function renderDataPanel(){
+  const panel = $("dataPanel");
+  const hint = $("indicatorHint");
+
+  if(!state.selectedSheet){
+    panel.innerHTML = `<div class="empty">Selecione uma categoria.</div>`;
+    $("rightTitle").textContent = "Dados";
+    $("rightMeta").textContent = "—";
+    if(hint) hint.textContent = "Clique em um indicador para atualizar o gráfico";
+    return;
+  }
+
+  $("rightTitle").textContent = state.selectedSheet.name;
+  const meta = [state.selectedSubtab || "Geral", state.selectedYear ? String(state.selectedYear) : null].filter(Boolean).join(" • ");
+  $("rightMeta").textContent = meta || "—";
+
+  const rows = buildIndicatorRowsForSelected();
+  if(!rows.length){
+    panel.innerHTML = `<div class="empty">Sem dados para o ano/aba selecionado.</div>`;
+    if(hint) hint.textContent = "Sem indicadores disponíveis";
+    return;
+  }
+
+  if(hint) hint.textContent = `${rows.length} itens • clique para atualizar o gráfico`;
+
+  panel.innerHTML = `
+    <table>
+      <thead><tr><th>Indicador</th><th style="text-align:right">Valor</th></tr></thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr class="${r.active ? "active" : ""}" data-key="${escapeHtml(r.key)}">
+            <td>${escapeHtml(r.indicador)}</td>
+            <td style="text-align:right">${escapeHtml(fmtValue(r.valor))}</td>
+          </tr>`).join("")}
+      </tbody>
+    </table>
+  `;
+
+  panel.querySelectorAll("tr[data-key]").forEach(tr => {
+    tr.addEventListener("click", () => {
+      const key = tr.getAttribute("data-key");
+      state.selectedRowKey = key;
+
+      // If user clicks a group row in "Geral", set subtab to that group for convenience
+      if(key?.startsWith("g::")){
+        const parts = key.split("::");
+        const group = parts[1] || null;
+        const measure = parts[2] || null;
+        if(group) state.selectedSubtab = group;
+        if(measure) state.selectedMeasure = measure;
+      }
+      if(key?.startsWith("m::")){
+        state.selectedMeasure = key.slice(3);
+      }
+      if(key?.startsWith("gm::")){
+        const parts = key.split("::");
+        if(parts[2]) state.selectedMeasure = parts[2];
+      }
+      if(key?.startsWith("w::")){
+        // wide rowIndex is in the key; currentMetric() will read it
+      }
+
+      renderTrendChart();
+      renderCompareChart();
+    updatePieFromLastCompare();
+      renderDataPanel();
+      renderSubtabs();
+      renderTimeline();
+    });
+  });
+}
+
+
+/* ==========================================================
+   CHARTS (bars)
+========================================================== */
+function currentMetric(){
+  const sh = state.selectedSheet;
+  if(!sh) return null;
+
+  // WIDE: metric is selected row (indicator row index), year is separate
+  if(!sh.yearField){
+    const idx = state.selectedRowKey?.startsWith("w::") ? Number(state.selectedRowKey.slice(3)) : 0;
+    const indField = sh.wideIndicatorField;
+    const baseRows = filterBaseRows(sh, sh.rows);
+    const row = baseRows[idx] || baseRows[0];
+    const label = indField ? norm(row?.[indField]) : "Indicador";
+    return { type:"wide", rowIndex: idx, label };
+  }
+
+  const gf = sh.groupField;
+  const measures = sh.measures || [];
+  if(!measures.length) return null;
+
+  if(gf){
+    let groupKey = state.selectedSubtab;
+
+    // If we're in "Geral", the chosen group should follow the clicked row in the indicators table.
+    if(!groupKey || groupKey === "Geral"){
+      const groups = getGroups(sh).filter(g => g !== "Geral");
+      const clicked = norm(state.selectedRowKey || "");
+      if(clicked && groups.includes(clicked)){
+        groupKey = clicked;
+      }else{
+        groupKey = groups[0] || null;
+      }
+    }
+
+    const measure =
+      (state.selectedMeasure && measures.includes(state.selectedMeasure))
+        ? state.selectedMeasure
+        : measures[0];
+
+    return { type:"group", groupKey, measure };
+  }
+
+  const measure =
+    (state.selectedMeasure && measures.includes(state.selectedMeasure))
+      ? state.selectedMeasure
+      : measures[0];
+
+  return { type:"measure", measure };
+}
+
+function getValueFor(sh, year, metric, rowForWide=null){
+  if(!sh || !metric || !year) return null;
+
+  // WIDE
+  if(metric.type === "wide"){
+    const baseRows = filterBaseRows(sh, sh.rows);
+    const row = rowForWide ?? baseRows[metric.rowIndex] ?? baseRows[0];
+    if(!row) return null;
+    const v = row[String(year)];
+    const n = toNumber(v);
+    return n !== null ? n : (String(v).trim() ? v : null);
+  }
+
+  if(!sh.yearField) return null;
+  const yf = sh.yearField;
+
+  let rows = sh.rows.filter(r => String(r[yf]).trim() === String(year).trim());
+  rows = filterBaseRows(sh, rows);
+
+  if(sh.groupField && metric.type === "group" && metric.groupKey){
+    rows = rows.filter(r => norm(r[sh.groupField]) === norm(metric.groupKey));
+  }
+  if(!rows.length) return null;
+
+  const nums = rows.map(r => toNumber(r[metric.measure])).filter(v => v !== null);
+  if(nums.length) return nums.length === 1 ? nums[0] : nums.reduce((a,b)=>a+b,0);
+
+  return toNumber(rows[0][metric.measure]) ?? rows[0][metric.measure];
+}
+
+function renderTrendChart(){
+  const box = $("trendChart");
+  const tag = $("trendTag");
+  const title = $("trendTitle");
+
+  const sh = state.selectedSheet;
+  if(!sh){ box.innerHTML = `<div class="empty">Selecione uma categoria.</div>`; tag.textContent="—"; return; }
+
+  const metric = currentMetric();
+  if(!metric){
+    box.innerHTML = `<div class="empty">Selecione um indicador.</div>`;
+    tag.textContent = "—";
+    return;
+  }
+
+  const years = yearsForCurrentSelection();
+  if(!years.length){
+    box.innerHTML = `<div class="empty">Sem anos disponíveis.</div>`;
+    tag.textContent = "—";
+    return;
+  }
+
+  let series = [];
+  if(metric.type === "wide"){
+    // use all sheet years
+    series = (sh.years || []).map(y => ({ label:String(y), value:getValueFor(sh, y, metric) }))
+      .filter(p => p.value !== null && p.value !== undefined);
+    tag.textContent = metric.label || "Indicador";
+  }else{
+    series = years.map(y => ({ label:String(y), value:getValueFor(sh, y, metric) }))
+      .filter(p => p.value !== null && p.value !== undefined);
+    tag.textContent = (metric.type === "group") ? (metric.groupKey || "Geral") : metric.measure;
+  }
+
+  title.textContent = "Comparação por ano";
+
+  if(!series.length){
+    box.innerHTML = `<div class="empty">Sem valores para este indicador.</div>`;
+    return;
+  }
+
+  const numericVals = series.map(p => (typeof p.value === "number" ? p.value : toNumber(p.value) ?? 0));
+  const max = Math.max(...numericVals);
+  const safeMax = (Number.isFinite(max) && max !== 0) ? max : 1;
+
+  box.innerHTML = `
+    <div class="bars">
+      ${series.map(p => {
+        const v = (typeof p.value === "number") ? p.value : (toNumber(p.value) ?? 0);
+        const h = Number.isFinite(v) ? Math.max(6, Math.round((v / safeMax) * 100)) : 6;
+        const isSel = String(p.label) === String(state.selectedYear);
+        return `
+          <div class="barWrap" data-tip-title="${escapeHtml(p.label)}" data-tip-value="${escapeHtml(fmtValue(p.value))}">
+            <div class="bar blue ${isSel ? "sel" : ""}" style="height:${h}%"></div>
+            <div class="barLabel">${escapeHtml(p.label)}</div>
+            <div class="barVal">${escapeHtml(fmtValue(p.value))}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderCompareChart(){
+  const box = $("compareChart");
+  const tag = $("compareTag");
+
+  const sh = state.selectedSheet;
+  if(!sh){ tag.textContent="Selecione uma categoria"; box.innerHTML = `<div class="empty">Selecione uma categoria.</div>`; state.lastCompare = null; updatePieFromLastCompare(); return; }
+
+  const metric = currentMetric();
+  if(!metric){ tag.textContent="Selecione um indicador"; box.innerHTML = `<div class="empty">Selecione um indicador.</div>`; state.lastCompare = null; updatePieFromLastCompare(); return; }
+
+  const year = state.selectedYear;
+  if(!year){ tag.textContent="Selecione um ano"; box.innerHTML = `<div class="empty">Selecione um ano na timeline.</div>`; state.lastCompare = null; updatePieFromLastCompare(); return; }
+
+  const muniCol = sh.munNameField || sh.columns.find(c => lower(c).includes("municip"));
+  const codeCol = sh.munCodeField;
+
+  // Only show compare if we have multiple municipalities
+  if(!muniCol && !codeCol){
+    tag.textContent="Sem coluna Município";
+    box.innerHTML = `<div class="empty">Para comparativo, a aba precisa ter coluna de Município ou Code_Mun.</div>`;
+    state.lastCompare = null; updatePieFromLastCompare();
+    return;
+  }
+
+  // Build candidate rows for the year
+  let rows;
+  if(sh.yearField){
+    rows = sh.rows.filter(r => String(r[sh.yearField]).trim() === String(year).trim());
+    if(sh.groupField && metric.type === "group" && metric.groupKey){
+      rows = rows.filter(r => norm(r[sh.groupField]) === norm(metric.groupKey));
+    }
+  }else{
+    // wide: all rows have year columns
+    rows = sh.rows.slice();
+  }
+
+  if(!rows.length){
+    tag.textContent="Sem dados no ano";
+    box.innerHTML = `<div class="empty">Sem dados para este ano.</div>`;
+    state.lastCompare = null; updatePieFromLastCompare();
+    return;
+  }
+
+  // value for base municipality
+  let baseValue = null;
+  if(sh.yearField){
+    const baseRows = filterBaseRows(sh, rows);
+    if(baseRows.length){
+      const nums = baseRows.map(r => toNumber(r[metric.measure])).filter(v => v !== null);
+      baseValue = nums.length ? (nums.length === 1 ? nums[0] : nums.reduce((a,b)=>a+b,0)) : null;
+    }
+  }else{
+    // wide: use base row at metric index
+    const baseRows = filterBaseRows(sh, sh.rows);
+    const row = baseRows[metric.rowIndex] || baseRows[0];
+    baseValue = toNumber(row?.[String(year)]);
+  }
+
+  // build map for other municipalities
+  const map = new Map();
+  for(const r of rows){
+    const muni = muniCol ? (norm(r[muniCol]) || "—") : "—";
+    const code = codeCol ? String(r[codeCol] ?? "").trim() : "";
+
+    const isBase = isBaseRow(sh, r);
+    if(isBase) continue;
+
+    let v = null;
+    if(sh.yearField){
+      v = toNumber(r[metric.measure]);
+    }else{
+      // wide: same rowIndex logic
+      v = toNumber(r[String(year)]);
+    }
+    if(v === null) continue;
+
+    const key = muniCol ? muni : (code || "—");
+    map.set(key, (map.get(key) || 0) + v);
+  }
+
+  const items = Array.from(map.entries()).map(([k,v]) => ({ label:k, value:v }));
+  items.sort((a,b)=>b.value - a.value);
+
+  const top5 = items.slice(0,5);
+
+  if(!top5.length){
+    tag.textContent = `${(metric.type === "group" ? (metric.groupKey || "Geral") : (metric.label || metric.measure))} • ${year}`;
+    state.lastCompare = null;
+    updatePieFromLastCompare();
+
+    box.innerHTML = `<div class="empty">Ainda não há dados de <b>outros municípios</b> para este indicador/ano nesta aba.</div>`;
+    return;
+  }
+
+  const series = [];
+  if(baseValue !== null && baseValue !== undefined){
+    series.push({ label: state.baseName || "Município base", value: baseValue, color:"blue" });
+  }
+  top5.forEach(p => series.push({ label:p.label, value:p.value, color:"orange" }));
+
+  tag.textContent = `${(metric.type === "group" ? (metric.groupKey || "Geral") : (metric.label || metric.measure))} • ${year}`;
+
+  // keep series for the pie panel (shown when map is compact)
+  state.lastCompare = { series, sub: tag.textContent };
+  updatePieFromLastCompare();
+
+  const max = Math.max(...series.map(p => p.value));
+  const safeMax = (Number.isFinite(max) && max !== 0) ? max : 1;
+
+  box.innerHTML = `
+    <div class="bars">
+      ${series.map((p, idx) => {
+        const h = Math.max(6, Math.round((p.value / safeMax) * 100));
+        const cls = (p.color === "blue") ? "blue" : "orange";
+        return `
+          <div class="barWrap" data-tip-title="${escapeHtml(p.label)}" data-tip-value="${escapeHtml(fmtValue(p.value))}">
+            <div class="bar ${cls}" style="height:${h}%"></div>
+            <div class="barLabel">${escapeHtml(p.label)}</div>
+            <div class="barVal">${escapeHtml(fmtValue(p.value))}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+/* ==========================================================
+   MAP
+========================================================== */
+function renderMapInfo(){
+  const el = $("mapInfo");
+  const sel = state.mapSelection;
+  if(!sel){
+    el.innerHTML = `<b>Seleção no mapa</b><span>Clique em um setor/feição para ver detalhes.</span>`;
+    return;
+  }
+  const setor = sel.CD_SETOR || sel.setor || sel.id || "";
+  const pop = sel.v0001 || sel.pop || sel.POP || "";
+  const dom = sel.v0007 || sel.dom || "";
+  const area = sel.AREA_KM2 || sel.area_km2 || "";
+
+  const parts = [];
+  if(setor) parts.push(`Setor: ${setor}`);
+  if(pop) parts.push(`População: ${pop}`);
+  if(dom) parts.push(`Domicílios: ${dom}`);
+  if(area) parts.push(`Área: ${area} km²`);
+  el.innerHTML = `<b>Seleção no mapa</b><span>${escapeHtml(parts.join(" • ") || "Item selecionado.")}</span>`;
+}
+
+window.addEventListener("message", (event) => {
+  const data = event.data || {};
+  if(!data || typeof data !== "object") return;
+
+  if(data.type === "featureSelected" || data.type === "sectorSelected" || data.type === "bairroSelected"){
+    state.mapSelection = data.payload || data;
+    renderMapInfo();
+  }
+  if(data.type === "clearSelectionDone"){
+    state.mapSelection = null;
+    renderMapInfo();
+  }
+});
+
+$("btnClearMap").addEventListener("click", () => {
+  state.mapSelection = null;
+  renderMapInfo();
+  $("mapFrame")?.contentWindow?.postMessage({ type:"clearSelection" }, "*");
+});
+
+
+const ICON_EXPAND = `
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M9 3H3v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M3 3l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M15 21h6v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M21 21l-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>`;
+const ICON_COMPACT = `
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M9 9H3V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M3 3l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M15 15h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M21 21l-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>`;
+
+function updateMapToggleIcon(){
+  const b = $("btnToggleMap");
+  if(!b) return;
+  const isCompact = !!state.mapCompact;
+  b.innerHTML = isCompact ? ICON_EXPAND : ICON_COMPACT;
+  const t = isCompact ? "Expandir mapa" : "Compactar mapa";
+  b.title = t;
+  b.setAttribute("aria-label", t);
+}
+
+function setMapCompact(compact){
+  state.mapCompact = !!compact;
+  const body = $("centerBody");
+  if(state.mapCompact) body.classList.add("compact");
+  else body.classList.remove("compact");
+  updateMapToggleIcon();
+  renderCompareChart();
+  updatePieFromLastCompare();
+}
+$("btnToggleMap").addEventListener("click", () => setMapCompact(!state.mapCompact));
+
+
+
+
+/* ==========================================================
+   CHART TOOLTIP (custom white rounded tooltip)
+========================================================== */
+let __tip = null;
+let __tipActive = null;
+window.addEventListener("DOMContentLoaded", () => { __tip = $("chartTooltip"); });
+
+function __tipSet(title, value){
+  if(!__tip) return;
+  __tip.innerHTML = `
+    <div class="tTitle">${escapeHtml(title)}</div>
+    <div class="tVal">${escapeHtml(value)}</div>
+  `;
+}
+
+function __tipPos(clientX, clientY){
+  if(!__tip) return;
+  const pad = 14;
+  const rect = __tip.getBoundingClientRect();
+  let x = clientX + pad;
+  let y = clientY + pad;
+
+  // keep inside viewport
+  if(x + rect.width > window.innerWidth - 10) x = clientX - rect.width - pad;
+  if(y + rect.height > window.innerHeight - 10) y = clientY - rect.height - pad;
+  x = Math.max(10, x);
+  y = Math.max(10, y);
+
+  __tip.style.left = x + "px";
+  __tip.style.top = y + "px";
+}
+
+function __tipShow(){
+  if(!__tip) return;
+  __tip.classList.add("show");
+  __tip.setAttribute("aria-hidden","false");
+}
+
+function __tipHide(){
+  if(!__tip) return;
+  __tip.classList.remove("show");
+  __tip.setAttribute("aria-hidden","true");
+}
+
+// Event delegation (bars are re-rendered often)
+document.addEventListener("pointerover", (e) => {
+  const wrap = e.target?.closest?.(".barWrap, .pieItem");
+  if(!wrap) return;
+  const tt = wrap.getAttribute("data-tip-title") || "";
+  const tv = wrap.getAttribute("data-tip-value") || "";
+  if(!tt && !tv) return;
+
+  __tipActive = wrap;
+  __tipSet(tt || "—", tv || "—");
+  __tipShow();
+  __tipPos(e.clientX, e.clientY);
+});
+
+document.addEventListener("pointermove", (e) => {
+  if(!__tipActive) return;
+  __tipPos(e.clientX, e.clientY);
+});
+
+document.addEventListener("pointerout", (e) => {
+  const wrap = e.target?.closest?.(".barWrap, .pieItem");
+  if(!wrap || wrap !== __tipActive) return;
+  const rel = e.relatedTarget;
+  if(rel && wrap.contains(rel)) return; // still inside
+  __tipActive = null;
+  __tipHide();
+});
+
+
+/* ==========================================================
+   PIE (compare values when map is compact)
+========================================================== */
+function drawPie(canvas, series, colors){
+  if(!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.clientWidth || 320;
+  const cssH = canvas.clientHeight || 220;
+  canvas.width = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  const ctx = canvas.getContext("2d");
+  if(!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  ctx.clearRect(0,0,cssW,cssH);
+
+  const total = series.reduce((s,p)=>s + (Number(p.value)||0), 0);
+  if(!total || !Number.isFinite(total) || total <= 0) return;
+
+  const cx = cssW/2;
+  const cy = cssH/2;
+  const r = Math.min(cssW, cssH) * 0.38;
+  let a0 = -Math.PI/2;
+
+  for(let i=0;i<series.length;i++){
+    const v = Number(series[i].value)||0;
+    const da = (v/total) * Math.PI*2;
+    const a1 = a0 + da;
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,a0,a1);
+    ctx.closePath();
+    ctx.fillStyle = colors[i] || "#ddd";
+    ctx.fill();
+
+    // separator
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    a0 = a1;
+  }
+
+  // inner hole (donut)
+  ctx.beginPath();
+  ctx.arc(cx,cy,r*0.55,0,Math.PI*2);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+
+  // total label
+  ctx.fillStyle = "#0a2f6a";
+  ctx.font = "700 12px Montserrat, Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Total", cx, cy-10);
+  ctx.font = "900 14px Montserrat, Arial";
+  ctx.fillText(fmtValue(total), cx, cy+10);
+}
+
+function updatePieFromLastCompare(){
+  const canvas = $("pieCanvas");
+  const legend = $("pieLegend");
+  const empty = $("pieEmpty");
+  const sub = $("pieSub");
+
+  if(!canvas || !legend || !empty || !sub) return;
+
+  // show only in compact mode (panel is already CSS-controlled)
+  if(!state.mapCompact){
+    // clear
+    legend.innerHTML = "";
+    empty.style.display = "none";
+    return;
+  }
+
+  const data = state.lastCompare;
+  if(!data || !data.series || data.series.length < 2){
+    legend.innerHTML = "";
+    empty.style.display = "block";
+    sub.textContent = "—";
+    const ctx = canvas.getContext("2d");
+    if(ctx){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+    return;
+  }
+
+  empty.style.display = "none";
+  sub.textContent = data.sub || "—";
+
+  const series = data.series.slice(0, 6);
+
+  // colors: base in blue; others in orange shades
+  const colors = series.map((p,i) => {
+    if(i === 0 && p.color === "blue") return "#0b3a83";
+    const k = Math.max(0, i-1);
+    const hue = 28 + (k * 12);
+    const light = 55 - (k * 3);
+    return `hsl(${hue}, 90%, ${Math.max(40, light)}%)`;
+  });
+
+  // Wait one frame to ensure the canvas has the correct size after layout changes
+  requestAnimationFrame(() => drawPie(canvas, series, colors));
+
+  const total = series.reduce((s,p)=>s + (Number(p.value)||0), 0) || 1;
+  legend.innerHTML = series.map((p,i) => {
+    const pct = Math.round(((Number(p.value)||0) / total) * 100);
+    return `
+      <div class="pieItem" data-tip-title="${escapeHtml(p.label)}" data-tip-value="${escapeHtml(fmtValue(p.value))} (${pct}%)">
+        <span class="pieSw" style="background:${colors[i]}"></span>
+        <span style="flex:1;min-width:0;">${escapeHtml(p.label)}</span>
+        <span style="color:var(--muted);font-weight:850;white-space:nowrap;">${pct}%</span>
+      </div>
+    `;
+  }).join("");
+}
+// Left icon navigation (opens/closes the drawer)
+document.querySelectorAll("#sideNav .navBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const group = btn.getAttribute("data-group");
+    const isSame = state.navGroup === group;
+    const willOpen = !(state.drawerOpen && isSame);
+
+    // active style
+    document.querySelectorAll("#sideNav .navBtn").forEach(b => b.classList.toggle("active", b === btn));
+
+    if(willOpen){
+      openDrawer(group);
+    }else{
+      closeDrawer();
+    }
+  });
+});
+$("btnCloseDrawer")?.addEventListener("click", closeDrawer);
+
+closeDrawer();
+updateMapToggleIcon();
+
+
+
+/* ==========================================================
+   PIPELINE
+========================================================== */
+function selectSheet(name){
+  const sh = state.model?.sheets?.find(s => s.name === name);
+  state.selectedSheet = sh || null;
+
+  state.selectedSubtab = "Geral";
+  state.selectedMeasure = null;
+  state.selectedRowKey = null;
+  state.selectedYear = null;
+
+  renderAll();
+}
+
+function renderAll(){
+  try{
+    renderMainTabs();
+    renderSubtabs();
+    renderTimeline();
+    renderDataPanel();
+    renderTrendChart();
+    renderCompareChart();
+    updatePieFromLastCompare();
+  }catch(err){
+    console.error(err);
+    setStatus("Erro ao renderizar. Verifique o console (F12).");
+  }
+}
+
+/* ==========================================================
+   LOAD XLSX
+========================================================== */
+function openPicker(){ $("fileMain").value = ""; $("fileMain").click(); }
+
+function handleWorkbookLoad(file){
+  if(!file) return;
+  if(typeof XLSX === "undefined"){
+    setStatus("Erro: XLSX não carregou.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const data = e.target.result;
+      const wb = XLSX.read(data, { type: "array" });
+      const model = buildModelFromWorkbook(wb);
+
+      state.wb = wb;
+      state.model = model;
+
+      const base = detectBaseMunicipality(model);
+      state.baseName = base.name;
+      state.baseNameLower = lower(base.name);
+      state.baseCode = base.code;
+
+      // default sheet: first with years, else first
+      state.selectedSheet = model.sheets.find(s => (s.years && s.years.length)) || model.sheets[0] || null;
+      state.selectedSubtab = "Geral";
+      state.selectedMeasure = null;
+      state.selectedRowKey = null;
+      state.selectedYear = null;
+
+      const ub = $("uploadBox"); if(ub) ub.style.display = "none";
+      setStatus(`Planilha carregada: ${file.name} • Base: ${state.baseName || "—"}`);
+
+      renderAll();
+    }catch(err){
+      console.error(err);
+      setStatus("Erro ao ler planilha.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+$("btnLoadMain")?.addEventListener("click", openPicker);
+$("btnLoadMain2")?.addEventListener("click", openPicker);
+$("fileMain")?.addEventListener("change", (e) => handleWorkbookLoad(e.target.files?.[0]));
+
+if(typeof XLSX === "undefined"){
+  // XLSX not loaded: keep warning only in the top status
+  setStatus("Aviso: biblioteca XLSX não carregou (verifique internet ou inclua xlsx.full.min.js localmente).");
+}
+
+</script>
+
+  <div id="chartTooltip" class="chartTooltip" aria-hidden="true"></div>
+</body>
+</html>
